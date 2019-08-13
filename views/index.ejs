@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <link rel="stylesheet" href="/libs/fontawesome/css/font-awesome.css">
+    <link rel="stylesheet" href="/js/simplemde/simplemde.min.css">
+    <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/simplemde/simplemde.min.js"></script>
+    <script src="https://cdn.bootcss.com/showdown/1.3.0/showdown.min.js"></script>
+    <style>
+        .wrap {
+            padding: 20px 50px;
+        }
+        .wrap .form-item {
+            margin-bottom: 15px;
+        }
+        .wrap .form-item label {
+            display: inline-block;
+            width: 80px;
+            height: 30px;
+            line-height: 30px;
+        }
+        .wrap .form-item input[type='text'] {
+            padding: 0 5px;
+            width: 200px;
+            height: 30px;
+            border: 1px solid #e8e8e8;
+            border-radius: 3px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <form >
+            <div class="form-item">
+                <label>文章标题</label>
+                <input type="text" placeholder="请输入文章标题">
+            </div>
+            <div class="form-item">
+                <label>文章摘要</label>
+                <input type="text" placeholder="请输入文章标题">
+            </div>
+            <div class="form-item">
+                <label>封面图片</label>
+                <input type="file" placeholder="请输入文章标题">
+            </div>
+        </form>
+        <div class="editorBox">
+            <textarea id="myId"></textarea>
+        </div>
+    </div>
+    <script>
+
+        var simplemde = new SimpleMDE({
+            element: $("#myId")[0],
+            autoDownloadFontAwesome: false,
+            initialValue: '### hello',
+            sideBySide: true,
+            toolbar: ['bold', 'italic', 'strikethrough', 'heading', '|',
+                'code', 'quote', 'unordered-list', 'ordered-list', '|',
+                'clean-block', 'link', 'image', 'preview', '|',
+                'horizontal-rule',
+            ],
+            insertTexts: {
+                horizontalRule: ["", "\n\n-----\n\n"],
+                image: ["![](http://", ")"],
+                link: ["[", "](http://)"],
+                table: ["", "\n\n| Column 1 | Column 2 | Column 3 |\n| -------- | -------- | -------- |\n| Text     | Text      | Text     |\n\n"],
+            },
+            previewRender: function(plainText, preview) {
+                setTimeout(() => {
+                    // preview
+                    $(preview).html(markdownToHtml(plainText))
+                }, 500)
+
+                return 'Loading...'
+            }
+        });
+
+        // simplemde.toggleSideBySide();
+
+        $('.editor').on('click', function() {
+            console.log(simplemde.value());
+            $('.editorWrap .show').html(converter.makeHtml(simplemde.value()))
+
+        })
+
+        var converter = new showdown.Converter();
+        function markdownToHtml(value) {
+            return converter.makeHtml(value)
+        }
+    </script>
+</body>
+</html>
