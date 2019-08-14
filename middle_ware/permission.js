@@ -4,7 +4,8 @@
  * @desc permission.js
  */
 module.exports = (req, res, next) => {
-    if(!(req.url.includes('/get') || req.url.includes('/search'))) {
+
+    if(!(req.url.includes('/get') || req.url.includes('/search') || req.url.includes('/phoneLogin'))) {
         const token = req.session.token;
         if(!token) {
             res.send({

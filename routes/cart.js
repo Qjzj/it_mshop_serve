@@ -9,9 +9,14 @@ const Cart = require('../models/cart');
 const mongoose = require('mongoose');
 
 const router = express.Router();
-// 新增
+/**
+ * 新增购物车数据
+ * body {
+ *   goods_id {string} 商品id
+ * }
+ */
 router.post('/api/create', (req, res, next) => {
-  const { goods_id, num } = req.body;
+  const { goods_id } = req.body;
   const user_id = utils.getIdBySession(req);
   // 查询这个产品是否存在
   Cart.find({user_id, goods_id, del: 0}, (err, result) => {
@@ -21,8 +26,8 @@ router.post('/api/create', (req, res, next) => {
     console.log('result', result);
     if(result.length > 0) {
       // 购物车中物品已经存在
-      result.num = num;
-      result.save((err) => {
+      result[0].num += 1;
+      result[0].save((err) => {
         if(err) {
           return next(Error(err));
         }
@@ -35,7 +40,7 @@ router.post('/api/create', (req, res, next) => {
       // 购物车中没有该物品
       const cart = new Cart({
         goods_id,
-        num,
+        num: 1,
         user_id,
       });
 
@@ -45,17 +50,20 @@ router.post('/api/create', (req, res, next) => {
         }
         res.send({
           error_code: 0,
-          data: result
+          data: result,
+          message: '新增成功'
         })
       })
     }
   });
-
-
 });
-// 查询购物车
-router.get('/api/search/:user_id', (req, res) => {
-  const user_id = req.params.user_id;
+
+/**
+ * 查询购物车
+ * 参数： 无
+ */
+router.get('/api/search/', (req, res) => {
+  const user_id = utils.getIdBySession(req);
 
   Cart.aggregate([
     {
@@ -96,7 +104,13 @@ router.get('/api/search/:user_id', (req, res) => {
 
 });
 
-// 修改购物车数量
+/**
+ * 修改购物车数量
+ * params {string} goods_id 商品id
+ * body {
+ *   type: 'add' / *  添加 / 减少
+ * }
+ */
 router.post('/api/num/:goods_id', (req, res, next) => {
   let { type } = req.body;
   const goods_id = req.params.goods_id;
@@ -107,14 +121,27 @@ router.post('/api/num/:goods_id', (req, res, next) => {
     if(result) {
       let currentNum = parseInt(result.num);
       currentNum += type === 'add' ?  1 : -1;
-      result.num = currentNum;
-      result.save((err, result) => {
-        if(err) return next(Error(err));
-        res.send({
-          error_code: 0,
-          message: '修改成功'
+      if(currentNum === 0) {
+        // 删除数据
+        result.remove((err, result) => {
+          if(err) return next(Error(err));
+          res.send({
+            error_code: 0,
+            message: '该商品已删除'
+          })
         })
-      })
+      }else {
+        result.num = currentNum;
+        result.save((err, result) => {
+          if(err) return next(Error(err));
+          res.send({
+            error_code: 0,
+            message: '修改成功'
+          })
+        })
+      }
+
+
     }else {
       res.send({
         error_code: 1,
@@ -122,23 +149,24 @@ router.post('/api/num/:goods_id', (req, res, next) => {
       })
     }
   })
-
 });
 
-// 删除所有购物车
-router.post('/api/clear', (req, res, next) => {
-  const user_id = utils.getIdBySession();
-  Cart.remove({user_id}, (err, result) => {
-    if(err) return next(Error(err));
+/**
+ * 删除所有购物车
+ * 参数 无
+ */
 
+router.get('/api/clear', (req, res, next) => {
+  const user_id = utils.getIdBySession(req);
+  Cart.deleteMany({user_id}, (err, result) => {
+    if(err) return next(Error(err));
+    console.log(result);
     res.send({
       error_code: 0,
       message: '购物车已清空'
     })
   })
 });
-
-
 
 
 module.exports = router;

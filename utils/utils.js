@@ -141,6 +141,7 @@ function checkPhone(phone) {
  * @returns {*}
  */
 function getIdBySession(req) {
+    if(!req) return null;
     const userInfo = JSON.parse(req.session.token);
     return userInfo._id || null;
 }

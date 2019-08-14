@@ -2,6 +2,7 @@ const ErrorLog = require('../models/errorModdel');
 
 module.exports = (err, req, res, next) => {
     console.log('进入了错误处理');
+    console.log(err);
     if(err) {
         let error = new ErrorLog({
             error_name: err.name,
