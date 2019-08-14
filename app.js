@@ -17,7 +17,9 @@ const reptileRouter = require('./routes/reptile');
 const uploadRouter = require('./routes/upload');
 const goodsRouter = require('./routes/goods');
 const cartRouter = require('./routes/cart');
-const bannerRouter = require('./routes/banner')
+const bannerRouter = require('./routes/banner');
+const addressRouter = require('./routes/address');
+const orderRouter = require('./routes/order');
 
 const app = express();
 
@@ -53,6 +55,8 @@ app.use('/upload', uploadRouter);
 app.use('/goods', goodsRouter);
 app.use('/cart', cartRouter);
 app.use('/banner', bannerRouter);
+app.use('/address', addressRouter);
+app.use('/order', orderRouter);
 
 
 // error handler

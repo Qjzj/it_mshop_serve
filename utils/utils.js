@@ -142,7 +142,7 @@ function checkPhone(phone) {
  */
 function getIdBySession(req) {
     if(!req) return null;
-    const userInfo = JSON.parse(req.session.token);
+    const userInfo = req.session.token && JSON.parse(req.session.token);
     return userInfo._id || null;
 }
 
@@ -156,4 +156,4 @@ module.exports = {
     formatDate,
     checkPhone,
     getIdBySession
-}
+};

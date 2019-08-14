@@ -23,15 +23,14 @@ const GoodsSchema = Schema({
   origin_price: {
     type: String,
     set: function(val) {
-      console.log(val);
-      return val.toFixed(2);
+      return Number(val).toFixed(2);
     }
   },
   price: {
     type: String,
     required: true,
     set(val) {
-      return val.toFixed(2)
+      return Number(val).toFixed(2)
     }
   },
   small_image: {
