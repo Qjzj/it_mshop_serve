@@ -6,6 +6,7 @@
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/itlike', {useNewUrlParser: true, useFindAndModify: false});
+mongoose.set('useCreateIndex', true);
 
 let db = mongoose.connection;
 

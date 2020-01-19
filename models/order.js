@@ -6,8 +6,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-mongoose.set('useCreateIndex', true);
-
 /**
  * 预定义模式修饰符
  * lowercase: bool

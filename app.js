@@ -45,7 +45,7 @@ app.use(session({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/upload', express.static(path.join(__dirname, 'upload')));
 
-app.use(permission);
+// app.use(permission);
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);

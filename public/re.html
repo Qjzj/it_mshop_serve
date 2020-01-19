@@ -1,0 +1,124 @@
+<!--
+ * @Author: your name
+ * @Date: 2019-12-30 17:00:01
+ * @LastEditTime : 2020-01-09 16:42:58
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \undefinedc:\Users\w\Desktop\re.html
+ -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .canvas {
+      margin: 50px;
+      border: 1px solid #ccc;
+    }
+  </style>
+  <script src="./js/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>
+  <div id="app">
+    <input type='file' id="file" />
+  </div>
+
+  <script>
+    var fileInput = document.querySelector('#file');
+    fileInput.onchange = function (e) {
+      var file = e.target.files[0];
+      var sizeM = file.size / 1024 / 1024;
+
+      console.log('文件大小', sizeM);
+      if (sizeM > 1) {
+        fileToDataURL(file).then(baseURL => {
+          compress(baseURL).then(file => {
+            let formData = new FormData();
+            formData.append('file', file);
+            ajax('http://localhost:3000/upload/api/upload', formData);
+          });
+        })
+      } else {
+        console.log('小于1M')
+        let formData = new FormData();
+        formData.append('file', file);
+        ajax('http://localhost:3000/upload/api/upload', formData);
+      }
+    }
+
+    function compress(baseURL, obj = {
+      w: 800,
+      quality: 0.8
+    }) {
+      return new Promise(resolve => {
+        var img = new Image();
+        img.src = baseURL;
+        img.onload = function () {
+          var imgW = img.naturalWidth;
+          var imgH = img.naturalHeight;
+          var resultW = obj.w || imgW;
+          var resultH = obj.h || (imgH * (resultW / imgW));
+          var quality = obj.quality || 0.8;
+          var canvas = document.createElement('canvas');
+          var ctx = canvas.getContext('2d');
+          canvas.width = resultW;
+          canvas.height = resultH;
+          ctx.drawImage(img, 0, 0, resultW, resultH);
+          var resultBaseURL = canvas.toDataURL('image/jpeg', quality);
+          let newFile = dataURLTofile(resultBaseURL, name);
+          resolve(newFile);
+        }
+      })
+    }
+
+    function fileToDataURL(file) {
+      return new Promise((resolve) => {
+        var fileReader = new FileReader();
+        fileReader.readAsDataURL(file);
+        fileReader.onload = function () {
+          resolve(this.result);
+        }
+      })
+
+    }
+
+    function dataURLTofile(baseURL) {
+      var arr = baseURL.split(';');
+      var mime = arr[0].replace(/(.*?):([^;]+)/, '$2');
+
+      var banaryStr = atob(arr[1].split(',')[1]);
+      var length = banaryStr.length;
+      var u8arr = new Uint8Array(length);
+      while (length--) {
+        u8arr[length] = banaryStr.charCodeAt(length);
+      }
+      return new File([u8arr], '123.jpg', {
+        type: mime
+      });
+    }
+
+    function ajax(url, data = {}, type = "POST") {
+      $.ajax(url, {
+        type: type,
+        data: data,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+          console.log(data);
+        }
+      })
+    }
+  </script>
+</body>
+
+</html>

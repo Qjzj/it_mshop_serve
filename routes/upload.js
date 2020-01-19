@@ -20,6 +20,9 @@ router.post('/api/upload', (req, res, next) => {
        const file = files['file'];
        console.log(file);
        const basename = path.basename(file.path);
+	   console.log('******************');
+	   console.log(basename);
+	   console.log(path.extname(file.path))
        const url = '/' + utils.formatDate('yyyyMMdd') + '/' + basename;
        const sdocument = new Document({
          name: file.name,
