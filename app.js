@@ -20,6 +20,8 @@ const cartRouter = require('./routes/cart');
 const bannerRouter = require('./routes/banner');
 const addressRouter = require('./routes/address');
 const orderRouter = require('./routes/order');
+const fileUpload = require('./routes/fileUpload');
+
 
 const app = express();
 
@@ -42,11 +44,22 @@ app.use(session({
   rolling: true,
   store: new MongoStore({mongooseConnection: db})
 }));
+
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  if (req.method === "OPTIONS") {
+    res.status = 200;
+    res.end();
+    return;
+  }
+  next();
+})
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/upload', express.static(path.join(__dirname, 'upload')));
 
 // app.use(permission);
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/resource', resourceRouter);
@@ -57,6 +70,7 @@ app.use('/cart', cartRouter);
 app.use('/banner', bannerRouter);
 app.use('/address', addressRouter);
 app.use('/order', orderRouter);
+app.use('/fileUpload', fileUpload)
 
 
 // error handler

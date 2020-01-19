@@ -1,0 +1,135 @@
+<!--
+ * @Author: your name
+ * @Date: 2020-01-19 15:29:29
+ * @LastEditTime : 2020-01-19 15:31:10
+ * @LastEditors  : Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \it_mshop_server\public\fileUpload\index.html
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script src='/js/jquery-3.3.1.min.js'></script>
+</head>
+<body>
+  <div>
+    <input id="file_input" type="file">
+    <button id="upload_btn">上传</button>
+    <button id="test">测试</button>
+  </div>
+  
+  <script>
+    const fileInput = document.querySelector('#file_input');
+    const uploadBtn = document.querySelector('#upload_btn');
+    const LENGTH = 10;
+    let file;
+    let fileName;
+    let data = [];
+
+    fileInput.addEventListener('change', fileChange);
+    uploadBtn.addEventListener('click', handleUpload);
+
+    function fileChange(e) {
+      file = e.target.files[0];
+      fileName = file.name;
+      console.log(file);
+    }
+
+    /**
+     * 请求数据 
+     */
+    function request({
+      url,
+      method = 'post',
+      data,
+      headers = {},
+      requestList
+    }) {
+      return new Promise((resolve) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        Object.keys(headers).forEach(key => {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+        xhr.send(data);
+        xhr.onload = e => {
+          resolve({
+            data: e.target.response
+          });
+        }
+      })
+    }
+
+    // 生成切片文件
+    function createFileChunks(file, length = LENGTH) {
+      const fileChunkList = [];
+      const chunkSize = Math.ceil(file.size / length);
+      let cur = 0;
+
+      while(cur < file.size) {
+        fileChunkList.push({
+          file: file.slice(cur, cur + chunkSize)
+        });
+        cur += chunkSize;
+      }
+      return fileChunkList;
+    }
+
+    // 上传切片
+    async function uploadChunks() {
+      const requestList = data.map(({chunk, hash}) => {
+        const formData = new FormData();
+        formData.append("chunk", chunk);
+        formData.append('hash', hash);
+        formData.append("filename", fileName);
+        return {formData};
+      })
+      .map(async ({formData}) => {
+        return request({
+          url: "http://localhost:3000/fileUpload",
+          data: formData
+        })
+      });
+
+      await Promise.all(requestList);
+
+      await mergeRequest();
+    }
+
+    // 发送合并请求
+    async function mergeRequest() {
+      await request({
+        url: 'http://localhost:3000/fileUpload/merge',
+        headers: {
+          "content-type": "application/json"
+        },
+        data: JSON.stringify({filename: fileName})
+      })
+    }
+
+    // 上传
+    async function handleUpload() {
+      if(!file) return;
+      const fileChunkList = createFileChunks(file);
+      data = fileChunkList.map(({file: _file}, index) => ({
+        chunk: _file,
+        hash: file.name + '-' + index
+      }));
+      console.log(data);
+      await uploadChunks();
+    }
+
+
+    const testBtn = document.querySelector('#test');
+    testBtn.onclick = function(){
+      mergeRequest();
+    }
+
+
+  </script>
+</body>
+</html>
