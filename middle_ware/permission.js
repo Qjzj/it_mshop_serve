@@ -9,8 +9,8 @@ module.exports = (req, res, next) => {
         const token = req.session.token;
         if(!token) {
             res.send({
-                error_code: 0,
-                result: '未登录'
+                error_code: 1,
+                result: '???'
             });
             return null;
         }

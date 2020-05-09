@@ -70,7 +70,7 @@ app.use('/cart', cartRouter);
 app.use('/banner', bannerRouter);
 app.use('/address', addressRouter);
 app.use('/order', orderRouter);
-app.use('/fileUpload', fileUpload)
+app.use('/fileUpload', fileUpload);
 
 
 // error handler
