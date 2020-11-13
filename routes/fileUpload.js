@@ -26,7 +26,7 @@ router.post('/', (req, res, next) => {
     await fse.move(chunk.path, `${chunkDir}/${hash}`);
     res.end('receive file chunk');
   })
-})
+});
 
 const resolvePost = req => new Promise(resolve => {
   let chunk = '';
@@ -36,7 +36,7 @@ const resolvePost = req => new Promise(resolve => {
   req.on('end', () => {
     resolve(JSON.parse(chunk));
   })
-})
+});
 
 // 合并切片
 const mergeFileChunk = async (filePath, filename) => {
@@ -57,7 +57,7 @@ const mergeFileChunk = async (filePath, filename) => {
     console.log('捕捉错误', e)
   }
 
-}
+};
 
 router.post('/merge', async (req, res, next) => {
   const data = req.body;

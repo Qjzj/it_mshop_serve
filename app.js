@@ -8,7 +8,7 @@ const session = require('express-session');
 const utils = require('./utils/utils');
 const MongoStore = require('connect-mongo')(session);
 const permission = require('./middle_ware/permission');
-const ErrorLog = require('./middle_ware/errorLogs')
+const ErrorLog = require('./middle_ware/errorLogs');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -54,7 +54,7 @@ app.use((req, res, next) => {
     return;
   }
   next();
-})
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/upload', express.static(path.join(__dirname, 'upload')));
